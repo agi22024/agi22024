@@ -15,6 +15,8 @@ if TYPE_CHECKING:  # Solo para type checkers, evita dependencia en tiempo de eje
     import pandas as pd
 
 logger = logging.getLogger(__name__)
+BQL_GETDATA_COMMAND = "getdata"
+BQL_DF_METHOD = "df"
 
 
 def _get_service(session_options: Optional[Dict[str, Any]] = None):
@@ -62,7 +64,7 @@ def fetch_dataframe(
         la respuesta cruda para que el llamador decida cómo tratarla.
     """
     service = _get_service(session_options)
-    result = service.execute("getdata", list(tickers), fields, overrides or {})
+    result = service.execute(BQL_GETDATA_COMMAND, list(tickers), fields, overrides or {})
 
     if result is None:
         return result
@@ -72,7 +74,7 @@ def fetch_dataframe(
     except IndexError:
         return result
 
-    to_df = getattr(first, "df", None)
+    to_df = getattr(first, BQL_DF_METHOD, None)
     if callable(to_df):
         try:
             return to_df()
