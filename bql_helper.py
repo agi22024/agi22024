@@ -8,7 +8,7 @@ ejecute el script.
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Any, Dict, Iterable, Optional
+from typing import TYPE_CHECKING, Any, Dict, Iterable, Optional, Union
 
 if TYPE_CHECKING:  # Solo para type checkers, evita dependencia en tiempo de ejecución
     import pandas as pd
@@ -38,7 +38,7 @@ def fetch_dataframe(
     overrides: Optional[Dict[str, Any]] = None,
     *,
     session_options: Optional[Dict[str, Any]] = None,
-) -> "pd.DataFrame | Any":
+) -> "Union[pd.DataFrame, Any]":
     """Ejecuta una consulta BQL simple y devuelve un DataFrame cuando es posible.
 
     Parameters
@@ -69,11 +69,11 @@ def fetch_dataframe(
     except IndexError:
         return result
 
+    to_df = getattr(first, "df", None)
     try:
-        to_df = getattr(first, "df", None)
         if callable(to_df):
             return to_df()
-    except Exception:
+    except (AttributeError, TypeError, ValueError):
         return result
 
     return result
