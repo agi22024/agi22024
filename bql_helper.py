@@ -62,12 +62,14 @@ def fetch_dataframe(
         la respuesta cruda para que el llamador decida cómo tratarla.
     """
     service = _get_service(session_options)
-    tickers_list = tickers if isinstance(tickers, list) else list(tickers)
-    result = service.execute("getdata", tickers_list, fields, overrides or {})
+    result = service.execute("getdata", list(tickers), fields, overrides or {})
+
+    if result is None:
+        return result
 
     try:
         first = result[0]
-    except (IndexError, TypeError):
+    except IndexError:
         return result
 
     to_df = getattr(first, "df", None)
@@ -92,10 +94,7 @@ def demo():
     sample_tickers = ["AAPL US Equity", "MSFT US Equity"]
     sample_fields = {"PX_LAST": {}, "CUR_MKT_CAP": {}}
     df = fetch_dataframe(sample_tickers, sample_fields)
-    try:
-        print(df.head())
-    except AttributeError:
-        print(df)
+    print(df.head() if hasattr(df, "head") else df)
 
 
 if __name__ == "__main__":  # pragma: no cover - uso manual
