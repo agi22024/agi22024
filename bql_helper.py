@@ -8,7 +8,10 @@ ejecute el script.
 
 from __future__ import annotations
 
-from typing import Any, Dict, Iterable, Optional
+from typing import TYPE_CHECKING, Any, Dict, Iterable, Optional
+
+if TYPE_CHECKING:  # Solo para type checkers, evita dependencia en tiempo de ejecución
+    import pandas as pd
 
 
 def _get_service(session_options: Optional[Dict[str, Any]] = None):
@@ -35,7 +38,7 @@ def fetch_dataframe(
     overrides: Optional[Dict[str, Any]] = None,
     *,
     session_options: Optional[Dict[str, Any]] = None,
-):
+) -> "pd.DataFrame | Any":
     """Ejecuta una consulta BQL simple y devuelve un DataFrame cuando es posible.
 
     Parameters
@@ -65,8 +68,15 @@ def fetch_dataframe(
         first = result[0]
     except IndexError:
         return result
-    to_df = getattr(first, "df", None)
-    return to_df() if callable(to_df) else result
+
+    try:
+        to_df = getattr(first, "df", None)
+        if callable(to_df):
+            return to_df()
+    except Exception:
+        return result
+
+    return result
 
 
 def demo():
@@ -80,7 +90,7 @@ def demo():
     sample_tickers = ["AAPL US Equity", "MSFT US Equity"]
     sample_fields = {"PX_LAST": {}, "CUR_MKT_CAP": {}}
     df = fetch_dataframe(sample_tickers, sample_fields)
-    print(df.head())
+    print(df.head() if hasattr(df, "head") else df)
 
 
 if __name__ == "__main__":  # pragma: no cover - uso manual
