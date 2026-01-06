@@ -8,10 +8,13 @@ ejecute el script.
 
 from __future__ import annotations
 
+import logging
 from typing import TYPE_CHECKING, Any, Dict, Iterable, Optional, Union
 
 if TYPE_CHECKING:  # Solo para type checkers, evita dependencia en tiempo de ejecución
     import pandas as pd
+
+logger = logging.getLogger(__name__)
 
 
 def _get_service(session_options: Optional[Dict[str, Any]] = None):
@@ -59,7 +62,8 @@ def fetch_dataframe(
         la respuesta cruda para que el llamador decida cómo tratarla.
     """
     service = _get_service(session_options)
-    result = service.execute("getdata", list(tickers), fields, overrides or {})
+    tickers_list = tickers if isinstance(tickers, list) else list(tickers)
+    result = service.execute("getdata", tickers_list, fields, overrides or {})
 
     try:
         first = result[0]
@@ -70,7 +74,8 @@ def fetch_dataframe(
     if callable(to_df):
         try:
             return to_df()
-        except (TypeError, ValueError):
+        except (TypeError, ValueError) as exc:
+            logger.debug("No se pudo convertir la respuesta a DataFrame: %s", exc)
             return result
 
     return result
@@ -87,7 +92,10 @@ def demo():
     sample_tickers = ["AAPL US Equity", "MSFT US Equity"]
     sample_fields = {"PX_LAST": {}, "CUR_MKT_CAP": {}}
     df = fetch_dataframe(sample_tickers, sample_fields)
-    print(df.head() if hasattr(df, "head") else df)
+    try:
+        print(df.head())
+    except AttributeError:
+        print(df)
 
 
 if __name__ == "__main__":  # pragma: no cover - uso manual
