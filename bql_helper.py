@@ -17,6 +17,7 @@ if TYPE_CHECKING:  # Solo para type checkers, evita dependencia en tiempo de eje
 logger = logging.getLogger(__name__)
 BQL_GETDATA_COMMAND = "getdata"
 BQL_DF_METHOD = "df"
+BqlFetchResult = Union["pd.DataFrame", list, Any]
 
 
 def _get_service(session_options: Optional[Dict[str, Any]] = None):
@@ -43,7 +44,7 @@ def fetch_dataframe(
     overrides: Optional[Dict[str, Any]] = None,
     *,
     session_options: Optional[Dict[str, Any]] = None,
-) -> Union["pd.DataFrame", Any]:
+) -> BqlFetchResult:
     """Ejecuta una consulta BQL simple y devuelve un DataFrame cuando es posible.
 
     Parameters
@@ -59,14 +60,19 @@ def fetch_dataframe(
 
     Returns
     -------
-    pandas.DataFrame | Any
+    pandas.DataFrame | list | Any
         Un DataFrame si la librería BQL lo permite; en caso contrario se devuelve
-        la respuesta cruda para que el llamador decida cómo tratarla.
+        la respuesta cruda (lista u objeto BQL) para que el llamador decida cómo
+        tratarla.
     """
     service = _get_service(session_options)
-    result = service.execute(BQL_GETDATA_COMMAND, list(tickers), fields, overrides or {})
+    tickers_list = tickers if isinstance(tickers, list) else list(tickers)
+    result = service.execute(BQL_GETDATA_COMMAND, tickers_list, fields, overrides or {})
 
     if result is None:
+        return result
+
+    if not hasattr(result, "__getitem__"):
         return result
 
     try:
