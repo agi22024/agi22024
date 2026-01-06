@@ -38,7 +38,7 @@ def fetch_dataframe(
     overrides: Optional[Dict[str, Any]] = None,
     *,
     session_options: Optional[Dict[str, Any]] = None,
-) -> "Union[pd.DataFrame, Any]":
+) -> Union["pd.DataFrame", Any]:
     """Ejecuta una consulta BQL simple y devuelve un DataFrame cuando es posible.
 
     Parameters
@@ -67,11 +67,11 @@ def fetch_dataframe(
         return result
 
     to_df = getattr(first, "df", None)
-    try:
-        if callable(to_df):
+    if callable(to_df):
+        try:
             return to_df()
-    except (TypeError, ValueError):
-        return result
+        except (TypeError, ValueError):
+            return result
 
     return result
 
