@@ -56,8 +56,7 @@ def fetch_dataframe(
         la respuesta cruda para que el llamador decida cómo tratarla.
     """
     service = _get_service(session_options)
-    tickers_list = tickers if isinstance(tickers, list) else list(tickers)
-    result = service.execute("getdata", tickers_list, fields, overrides or {})
+    result = service.execute("getdata", list(tickers), fields, overrides or {})
 
     if not result:
         return result
@@ -67,7 +66,7 @@ def fetch_dataframe(
     except IndexError:
         return result
     to_df = getattr(first, "df", None)
-    return to_df() if callable(to_df) else first
+    return to_df() if callable(to_df) else result
 
 
 def demo():

@@ -8,7 +8,7 @@ Terminal Bloomberg**, donde ya están disponibles las dependencias `bql` y
 ### Requisitos
 
 - Bloomberg Terminal con permisos para BQL.
-- Python 3.9+.
+- Python 3.8+ (cualquier versión moderna de Python 3 funciona con este ejemplo).
 - Librerías oficiales instaladas dentro del terminal:
 
 ```bash
