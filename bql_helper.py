@@ -61,19 +61,16 @@ def fetch_dataframe(
     service = _get_service(session_options)
     result = service.execute("getdata", list(tickers), fields, overrides or {})
 
-    if not result:
-        return result
-
     try:
         first = result[0]
-    except IndexError:
+    except (IndexError, TypeError):
         return result
 
     to_df = getattr(first, "df", None)
     try:
         if callable(to_df):
             return to_df()
-    except (AttributeError, TypeError, ValueError):
+    except (TypeError, ValueError):
         return result
 
     return result
