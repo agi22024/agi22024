@@ -15,7 +15,7 @@ HTML("""
 <style>
   #game-wrapper { text-align: center; font-family: 'Courier New', monospace; }
   #game-canvas { border: 3px solid #222; border-radius: 8px; display: block; margin: 10px auto; image-rendering: pixelated; background: #87CEEB; }
-  #game-info { color: #333; margin: 6px auto; max-width: 640px; font-size: 13px; }
+  #game-info { color: #333; margin: 6px auto; max-width: 900px; font-size: 14px; }
   #game-info kbd { background: #eee; border: 1px solid #aaa; border-radius: 3px; padding: 1px 5px; font-size: 12px; }
   #score-board { font-size: 15px; font-weight: bold; margin: 4px; }
 </style>
@@ -27,7 +27,7 @@ HTML("""
     &nbsp;&nbsp;|&nbsp;&nbsp;
     <span style="color:#F39C12;">&#9734; Estrellas: <span id="stars-left">0</span></span>
   </div>
-  <canvas id="game-canvas" width="640" height="400"></canvas>
+  <canvas id="game-canvas" width="900" height="560"></canvas>
   <div id="game-info">
     <b>Nino (Rojo):</b> <kbd>A</kbd> <kbd>D</kbd> mover &nbsp; <kbd>W</kbd> saltar
     &nbsp;&nbsp;|&nbsp;&nbsp;
@@ -48,13 +48,13 @@ HTML("""
 
   // --- Furniture / room elements ---
   const furniture = [
-    { type: 'shelf', x: 40, y: 120, w: 100, h: 14 },
-    { type: 'shelf', x: 500, y: 120, w: 100, h: 14 },
-    { type: 'platform', x: 200, y: 230, w: 110, h: 16 },
-    { type: 'platform', x: 340, y: 170, w: 110, h: 16 },
-    { type: 'platform', x: 80, y: 280, w: 90, h: 16 },
-    { type: 'platform', x: 470, y: 280, w: 90, h: 16 },
-    { type: 'table', x: 260, y: FLOOR_Y - 40, w: 120, h: 40 },
+    { type: 'shelf', x: 50, y: 150, w: 140, h: 18 },
+    { type: 'shelf', x: 710, y: 150, w: 140, h: 18 },
+    { type: 'platform', x: 270, y: 310, w: 150, h: 18 },
+    { type: 'platform', x: 480, y: 230, w: 150, h: 18 },
+    { type: 'platform', x: 100, y: 370, w: 130, h: 18 },
+    { type: 'platform', x: 670, y: 370, w: 130, h: 18 },
+    { type: 'table', x: 370, y: FLOOR_Y - 55, w: 160, h: 55 },
   ];
 
   // --- Stars ---
@@ -62,14 +62,14 @@ HTML("""
   function spawnStars() {
     stars = [];
     const positions = [
-      { x: 90, y: 100 }, { x: 550, y: 100 },
-      { x: 255, y: 210 }, { x: 395, y: 150 },
-      { x: 125, y: 260 }, { x: 515, y: 260 },
-      { x: 320, y: FLOOR_Y - 60 },
-      { x: 50, y: FLOOR_Y - 20 }, { x: 590, y: FLOOR_Y - 20 },
-      { x: 320, y: 90 },
+      { x: 120, y: 125 }, { x: 780, y: 125 },
+      { x: 345, y: 285 }, { x: 555, y: 205 },
+      { x: 165, y: 345 }, { x: 735, y: 345 },
+      { x: 450, y: FLOOR_Y - 80 },
+      { x: 60, y: FLOOR_Y - 25 }, { x: 840, y: FLOOR_Y - 25 },
+      { x: 450, y: 110 },
     ];
-    positions.forEach(p => stars.push({ x: p.x, y: p.y, r: 10, alive: true, blink: 0 }));
+    positions.forEach(p => stars.push({ x: p.x, y: p.y, r: 13, alive: true, blink: 0 }));
     document.getElementById('stars-left').textContent = stars.filter(s => s.alive).length;
   }
 
@@ -77,7 +77,7 @@ HTML("""
   function createPlayer(name, color, hairColor, startX, controls) {
     return {
       name, color, hairColor,
-      x: startX, y: FLOOR_Y, w: 28, h: 36,
+      x: startX, y: FLOOR_Y, w: 40, h: 50,
       vx: 0, vy: 0,
       onGround: true,
       facing: 1,
@@ -88,8 +88,8 @@ HTML("""
     };
   }
 
-  const P1 = createPlayer('Nino', '#E74C3C', '#4A2A0A', 100, { left: 'a', right: 'd', jump: 'w' });
-  const P2 = createPlayer('Nina', '#9B59B6', '#5D3FD3', 500, { left: 'arrowleft', right: 'arrowright', jump: 'arrowup' });
+  const P1 = createPlayer('Nino', '#E74C3C', '#4A2A0A', 140, { left: 'a', right: 'd', jump: 'w' });
+  const P2 = createPlayer('Nina', '#9B59B6', '#5D3FD3', 720, { left: 'arrowleft', right: 'arrowright', jump: 'arrowup' });
   const players = [P1, P2];
 
   // --- Input ---
@@ -115,135 +115,135 @@ HTML("""
     // --- Shadow ---
     ctx.fillStyle = 'rgba(0,0,0,0.13)';
     ctx.beginPath();
-    ctx.ellipse(cx, FLOOR_Y + 2, 16, 5, 0, 0, Math.PI * 2);
+    ctx.ellipse(cx, FLOOR_Y + 3, 22, 7, 0, 0, Math.PI * 2);
     ctx.fill();
 
     // --- Hair (long, behind body) ---
     ctx.fillStyle = hairColor;
     // back hair flowing down
-    const hairLen = 22;
+    const hairLen = 32;
     ctx.beginPath();
-    ctx.moveTo(cx - 10 * dir, dy - h + 4);
-    ctx.quadraticCurveTo(cx - 14 * dir, dy - h + hairLen, cx - 8 * dir, dy - h + hairLen + 6);
-    ctx.lineTo(cx - 2 * dir, dy - h + hairLen + 4);
-    ctx.lineTo(cx - 4 * dir, dy - h + 6);
+    ctx.moveTo(cx - 14 * dir, dy - h + 6);
+    ctx.quadraticCurveTo(cx - 20 * dir, dy - h + hairLen, cx - 12 * dir, dy - h + hairLen + 8);
+    ctx.lineTo(cx - 3 * dir, dy - h + hairLen + 6);
+    ctx.lineTo(cx - 6 * dir, dy - h + 8);
     ctx.closePath();
     ctx.fill();
     // other side hair
     ctx.beginPath();
-    ctx.moveTo(cx + 10 * dir, dy - h + 4);
-    ctx.quadraticCurveTo(cx + 14 * dir, dy - h + hairLen, cx + 8 * dir, dy - h + hairLen + 6);
-    ctx.lineTo(cx + 2 * dir, dy - h + hairLen + 4);
-    ctx.lineTo(cx + 4 * dir, dy - h + 6);
+    ctx.moveTo(cx + 14 * dir, dy - h + 6);
+    ctx.quadraticCurveTo(cx + 20 * dir, dy - h + hairLen, cx + 12 * dir, dy - h + hairLen + 8);
+    ctx.lineTo(cx + 3 * dir, dy - h + hairLen + 6);
+    ctx.lineTo(cx + 6 * dir, dy - h + 8);
     ctx.closePath();
     ctx.fill();
 
     // --- Body ---
     ctx.fillStyle = color;
-    const bodyTop = dy - h + 14;
-    ctx.fillRect(cx - 7, bodyTop, 14, 16);
+    const bodyTop = dy - h + 20;
+    ctx.fillRect(cx - 10, bodyTop, 20, 22);
 
     // --- Head ---
     ctx.fillStyle = '#FDDCB5';
     ctx.beginPath();
-    ctx.arc(cx, dy - h + 10, 11, 0, Math.PI * 2);
+    ctx.arc(cx, dy - h + 14, 15, 0, Math.PI * 2);
     ctx.fill();
 
     // --- Hair top ---
     ctx.fillStyle = hairColor;
     ctx.beginPath();
-    ctx.arc(cx, dy - h + 7, 12, Math.PI, Math.PI * 2);
+    ctx.arc(cx, dy - h + 10, 17, Math.PI, Math.PI * 2);
     ctx.fill();
     // bangs
-    ctx.fillRect(cx - 11, dy - h + 4, 22, 5);
+    ctx.fillRect(cx - 16, dy - h + 5, 32, 7);
 
     // --- Eyes (Pokemon style - big!) ---
-    const eyeOff = 4 * dir;
+    const eyeOff = 5 * dir;
     // white
     ctx.fillStyle = '#FFF';
     ctx.beginPath();
-    ctx.ellipse(cx - 4 + eyeOff * 0.3, dy - h + 11, 4, 4.5, 0, 0, Math.PI * 2);
+    ctx.ellipse(cx - 5 + eyeOff * 0.3, dy - h + 15, 5.5, 6, 0, 0, Math.PI * 2);
     ctx.fill();
     ctx.beginPath();
-    ctx.ellipse(cx + 4 + eyeOff * 0.3, dy - h + 11, 4, 4.5, 0, 0, Math.PI * 2);
+    ctx.ellipse(cx + 5 + eyeOff * 0.3, dy - h + 15, 5.5, 6, 0, 0, Math.PI * 2);
     ctx.fill();
     // iris
     ctx.fillStyle = p.name === 'Nino' ? '#2C3E50' : '#6C3483';
     ctx.beginPath();
-    ctx.arc(cx - 3 + dir * 2, dy - h + 11.5, 2.5, 0, Math.PI * 2);
+    ctx.arc(cx - 4 + dir * 3, dy - h + 16, 3.5, 0, Math.PI * 2);
     ctx.fill();
     ctx.beginPath();
-    ctx.arc(cx + 5 + dir * 2, dy - h + 11.5, 2.5, 0, Math.PI * 2);
+    ctx.arc(cx + 7 + dir * 3, dy - h + 16, 3.5, 0, Math.PI * 2);
     ctx.fill();
     // shine
     ctx.fillStyle = '#FFF';
     ctx.beginPath();
-    ctx.arc(cx - 2 + dir * 2, dy - h + 10.5, 1, 0, Math.PI * 2);
+    ctx.arc(cx - 3 + dir * 3, dy - h + 14, 1.5, 0, Math.PI * 2);
     ctx.fill();
     ctx.beginPath();
-    ctx.arc(cx + 6 + dir * 2, dy - h + 10.5, 1, 0, Math.PI * 2);
+    ctx.arc(cx + 8 + dir * 3, dy - h + 14, 1.5, 0, Math.PI * 2);
     ctx.fill();
 
     // --- Mouth ---
     ctx.fillStyle = '#C0392B';
     ctx.beginPath();
-    ctx.arc(cx + dir * 1, dy - h + 16, 1.5, 0, Math.PI);
+    ctx.arc(cx + dir * 1, dy - h + 22, 2, 0, Math.PI);
     ctx.fill();
 
     // --- Arms ---
     ctx.strokeStyle = '#FDDCB5';
-    ctx.lineWidth = 3;
-    const armSwing = Math.sin(p.frameTick * 0.3) * (Math.abs(p.vx) > 0.5 ? 8 : 2);
+    ctx.lineWidth = 4;
+    const armSwing = Math.sin(p.frameTick * 0.3) * (Math.abs(p.vx) > 0.5 ? 11 : 3);
     ctx.beginPath();
-    ctx.moveTo(cx - 7, bodyTop + 3);
-    ctx.lineTo(cx - 13, bodyTop + 10 + armSwing);
+    ctx.moveTo(cx - 10, bodyTop + 4);
+    ctx.lineTo(cx - 18, bodyTop + 14 + armSwing);
     ctx.stroke();
     ctx.beginPath();
-    ctx.moveTo(cx + 7, bodyTop + 3);
-    ctx.lineTo(cx + 13, bodyTop + 10 - armSwing);
+    ctx.moveTo(cx + 10, bodyTop + 4);
+    ctx.lineTo(cx + 18, bodyTop + 14 - armSwing);
     ctx.stroke();
 
     // --- Legs ---
-    ctx.lineWidth = 3.5;
-    const legSwing = Math.sin(p.frameTick * 0.3) * (Math.abs(p.vx) > 0.5 ? 6 : 0);
+    ctx.lineWidth = 4.5;
+    const legSwing = Math.sin(p.frameTick * 0.3) * (Math.abs(p.vx) > 0.5 ? 8 : 0);
     if (!onGround) {
       // jumping pose - legs tucked
       ctx.beginPath();
-      ctx.moveTo(cx - 4, bodyTop + 16);
-      ctx.lineTo(cx - 8, bodyTop + 20);
-      ctx.lineTo(cx - 4, bodyTop + 24);
+      ctx.moveTo(cx - 5, bodyTop + 22);
+      ctx.lineTo(cx - 11, bodyTop + 28);
+      ctx.lineTo(cx - 5, bodyTop + 34);
       ctx.stroke();
       ctx.beginPath();
-      ctx.moveTo(cx + 4, bodyTop + 16);
-      ctx.lineTo(cx + 8, bodyTop + 20);
-      ctx.lineTo(cx + 4, bodyTop + 24);
+      ctx.moveTo(cx + 5, bodyTop + 22);
+      ctx.lineTo(cx + 11, bodyTop + 28);
+      ctx.lineTo(cx + 5, bodyTop + 34);
       ctx.stroke();
     } else {
       ctx.beginPath();
-      ctx.moveTo(cx - 4, bodyTop + 16);
-      ctx.lineTo(cx - 6 + legSwing, dy);
+      ctx.moveTo(cx - 5, bodyTop + 22);
+      ctx.lineTo(cx - 8 + legSwing, dy);
       ctx.stroke();
       ctx.beginPath();
-      ctx.moveTo(cx + 4, bodyTop + 16);
-      ctx.lineTo(cx + 6 - legSwing, dy);
+      ctx.moveTo(cx + 5, bodyTop + 22);
+      ctx.lineTo(cx + 8 - legSwing, dy);
       ctx.stroke();
     }
 
     // --- Shoes ---
     ctx.fillStyle = p.name === 'Nino' ? '#E74C3C' : '#AF7AC5';
     if (!onGround) {
-      ctx.fillRect(cx - 9, bodyTop + 21, 7, 4);
-      ctx.fillRect(cx + 2, bodyTop + 21, 7, 4);
+      ctx.fillRect(cx - 13, bodyTop + 30, 10, 5);
+      ctx.fillRect(cx + 3, bodyTop + 30, 10, 5);
     } else {
-      ctx.fillRect(cx - 9 + legSwing, dy - 4, 7, 4);
-      ctx.fillRect(cx + 2 - legSwing, dy - 4, 7, 4);
+      ctx.fillRect(cx - 13 + legSwing, dy - 5, 10, 5);
+      ctx.fillRect(cx + 3 - legSwing, dy - 5, 10, 5);
     }
 
     // --- Name tag ---
-    ctx.fillStyle = 'rgba(0,0,0,0.5)';
-    ctx.font = 'bold 9px monospace';
+    ctx.fillStyle = 'rgba(0,0,0,0.6)';
+    ctx.font = 'bold 12px monospace';
     ctx.textAlign = 'center';
-    ctx.fillText(p.name, cx, dy - h - 6);
+    ctx.fillText(p.name, cx, dy - h - 8);
   }
 
   function drawStar(s) {
@@ -299,50 +299,50 @@ HTML("""
 
     // Window
     ctx.fillStyle = '#AED6F1';
-    ctx.fillRect(280, 30, 80, 70);
+    ctx.fillRect(390, 35, 120, 100);
     ctx.strokeStyle = '#7FB3D8';
-    ctx.lineWidth = 3;
-    ctx.strokeRect(280, 30, 80, 70);
+    ctx.lineWidth = 4;
+    ctx.strokeRect(390, 35, 120, 100);
     ctx.beginPath();
-    ctx.moveTo(320, 30);
-    ctx.lineTo(320, 100);
+    ctx.moveTo(450, 35);
+    ctx.lineTo(450, 135);
     ctx.stroke();
     ctx.beginPath();
-    ctx.moveTo(280, 65);
-    ctx.lineTo(360, 65);
+    ctx.moveTo(390, 85);
+    ctx.lineTo(510, 85);
     ctx.stroke();
     // curtains
     ctx.fillStyle = '#E8DAEF';
-    ctx.fillRect(268, 25, 16, 80);
-    ctx.fillRect(356, 25, 16, 80);
+    ctx.fillRect(374, 28, 20, 114);
+    ctx.fillRect(506, 28, 20, 114);
 
     // Poster on wall (left)
     ctx.fillStyle = '#FADBD8';
-    ctx.fillRect(140, 50, 50, 60);
+    ctx.fillRect(180, 55, 70, 85);
     ctx.strokeStyle = '#E6B0AA';
     ctx.lineWidth = 2;
-    ctx.strokeRect(140, 50, 50, 60);
+    ctx.strokeRect(180, 55, 70, 85);
     ctx.fillStyle = '#E74C3C';
-    ctx.font = 'bold 8px monospace';
+    ctx.font = 'bold 11px monospace';
     ctx.textAlign = 'center';
-    ctx.fillText('POKE', 165, 75);
-    ctx.fillText('MON', 165, 88);
+    ctx.fillText('POKE', 215, 90);
+    ctx.fillText('MON', 215, 108);
 
     // Clock on wall (right)
     ctx.fillStyle = '#FFF';
     ctx.beginPath();
-    ctx.arc(480, 65, 20, 0, Math.PI * 2);
+    ctx.arc(680, 80, 28, 0, Math.PI * 2);
     ctx.fill();
     ctx.strokeStyle = '#333';
-    ctx.lineWidth = 2;
+    ctx.lineWidth = 2.5;
     ctx.stroke();
     ctx.beginPath();
-    ctx.moveTo(480, 65);
-    ctx.lineTo(480, 50);
+    ctx.moveTo(680, 80);
+    ctx.lineTo(680, 58);
     ctx.stroke();
     ctx.beginPath();
-    ctx.moveTo(480, 65);
-    ctx.lineTo(492, 65);
+    ctx.moveTo(680, 80);
+    ctx.lineTo(698, 80);
     ctx.stroke();
 
     // Floor
@@ -355,7 +355,7 @@ HTML("""
     // Floor planks
     ctx.strokeStyle = 'rgba(0,0,0,0.15)';
     ctx.lineWidth = 1;
-    for (let fx = 0; fx < W; fx += 80) {
+    for (let fx = 0; fx < W; fx += 100) {
       ctx.beginPath();
       ctx.moveTo(fx, FLOOR_Y);
       ctx.lineTo(fx, H);
@@ -412,16 +412,16 @@ HTML("""
       }
     });
     // Walls
-    if (p.x < 14) p.x = 14;
-    if (p.x > W - 14) p.x = W - 14;
+    if (p.x < 20) p.x = 20;
+    if (p.x > W - 20) p.x = W - 20;
   }
 
   // --- Star collection ---
   function checkStarCollision(p) {
     stars.forEach(s => {
       if (!s.alive) return;
-      const dx = p.x - s.x, dy = (p.y - 18) - s.y;
-      if (Math.sqrt(dx * dx + dy * dy) < 20) {
+      const dx = p.x - s.x, dy = (p.y - 25) - s.y;
+      if (Math.sqrt(dx * dx + dy * dy) < 28) {
         s.alive = false;
         p.score++;
         document.getElementById(p === P1 ? 'score-p1' : 'score-p2').textContent = p.score;
@@ -437,8 +437,8 @@ HTML("""
   // --- Update ---
   function update() {
     players.forEach(p => {
-      const speed = 3.2;
-      const jumpForce = -10;
+      const speed = 4.2;
+      const jumpForce = -12;
 
       if (keysDown[p.controls.left]) { p.vx = -speed; p.facing = -1; }
       else if (keysDown[p.controls.right]) { p.vx = speed; p.facing = 1; }
@@ -535,8 +535,8 @@ HTML("""
   }
 
   function resetGame() {
-    P1.x = 100; P1.y = FLOOR_Y; P1.vx = 0; P1.vy = 0; P1.score = 0; P1.onGround = true;
-    P2.x = 500; P2.y = FLOOR_Y; P2.vx = 0; P2.vy = 0; P2.score = 0; P2.onGround = true;
+    P1.x = 140; P1.y = FLOOR_Y; P1.vx = 0; P1.vy = 0; P1.score = 0; P1.onGround = true;
+    P2.x = 720; P2.y = FLOOR_Y; P2.vx = 0; P2.vy = 0; P2.score = 0; P2.onGround = true;
     document.getElementById('score-p1').textContent = '0';
     document.getElementById('score-p2').textContent = '0';
     spawnStars();
